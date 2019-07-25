@@ -1,0 +1,5 @@
+bin
+obj
+packages
+.vscode
+.DS_Store
