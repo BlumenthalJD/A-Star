@@ -39,8 +39,13 @@ namespace AStar
 			//start stopwatch to get runtime
 			var watch = Stopwatch.StartNew();
 
+			//list of discovered but not expanded
 			List<Vertex> openList = new List<Vertex>();
+
+			//list of discovered AND expanded
 			List<Vertex> closedList = new List<Vertex>();
+
+			//list of neighbor positions
 			List<List<int>> positions = new List<List<int>>
 				{
 					new List<int>{0, -1},
@@ -53,13 +58,17 @@ namespace AStar
 					new List<int>{1, 1}
 				};
 
+			//add start to discovered but not expanded
 			openList.Add(start);
 
+			//begin searching for path
 			while (openList.Count > 0)
 			{
+				//place holder for current vertex
 				var currentVertex = openList[0];
 				var currentIndex = 0;
 
+				//find smallest f score vertex
 				for (int i = 0; i < openList.Count; i++)
 				{
 					if (openList[i].fScore < currentVertex.fScore)
@@ -69,9 +78,11 @@ namespace AStar
 					}
 				}
 
+				//vertex will be discovered after this iteration
 				openList.RemoveAt(currentIndex);
 				closedList.Add(currentVertex);
 
+				//print reverse path of current node if current node is goal node
 				if (currentVertex.position.SequenceEqual(end.position))
 				{
 					List<List<int>> path = new List<List<int>>();
@@ -94,6 +105,7 @@ namespace AStar
 
 				List<Vertex> children = new List<Vertex>();
 
+				//if neighbor nodes aren't outside of boundaries and are traversable, add to neighbor list
 				foreach (var position in positions)
 				{
 					var vertexPosition = new List<int> { currentVertex.position[0] + position[0], currentVertex.position[1] + position[1] };
@@ -107,22 +119,28 @@ namespace AStar
 					children.Add(newVertex);
 				}
 
+				//loop through neighbors
 				foreach (var child in children)
 				{
+					//if is already discovered AND expanded, skip adding to list
 					foreach (var closed in closedList)
 					{
 						if (child.position.SequenceEqual(closed.position)) continue;
 					}
 
+					//calculate scores with manhattan distance heuristic
 					child.gScore = currentVertex.gScore + 1;
 					child.hScore = Math.Pow(child.position[0] - end.position[0], 2) + Math.Pow(child.position[1] - end.position[1], 2);
 					child.fScore = child.gScore + child.hScore;
 
+					//if is already discovered and has worse total distance score than already discovered,
+					//skip adding to list
 					foreach (var open in openList)
 					{
 						if (child.position.SequenceEqual(open.position) && child.gScore > open.gScore) continue;
 					}
 
+					//add to neighbor list
 					openList.Add(child);
 				}
 			}
